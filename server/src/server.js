@@ -1,35 +1,43 @@
 require("dotenv").config();
 
-console.log("JWT Secret:", process.env.JWT_SECRET);
-
 const express = require("express");
 const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
+const resumeRoutes = require("./routes/resumeRoutes");
+const applicationRoutes = require("./routes/applicationRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
-const authMiddleware = require("./middleware/authMiddleware");
-const resumeRoutes = require("./routes/resumeRoutes");
-
-app.get(
-  "/api/profile",
-  authMiddleware,
-  (req, res) => {
-    res.json({
-      user: req.user,
-    });
-  }
-);
 
 app.use(cors());
 app.use(express.json());
-app.use("/api/resume", resumeRoutes);
+
+app.get("/api/profile", authMiddleware, (req, res) => {
+  res.json({ user: req.user });
+});
 
 app.use("/api/auth", authRoutes);
+app.use("/api/resume", resumeRoutes);
+app.use("/api/applications", applicationRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.get("/", (req, res) => {
-  res.json({
-    message: "InternPilot API Running",
+  res.json({ message: "InternPilot API Running" });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  if (err instanceof Error && err.message === "Only PDF files are allowed") {
+    return res.status(400).json({ message: err.message });
+  }
+
+  return res.status(err.statusCode || 500).json({
+    message: err.message || "Server error",
   });
 });
 

@@ -1,0 +1,3 @@
+ALTER TABLE "Resume" ADD COLUMN "filename" TEXT;
+ALTER TABLE "Resume" ADD COLUMN "mimeType" TEXT;
+ALTER TABLE "Resume" ADD COLUMN "size" INTEGER;

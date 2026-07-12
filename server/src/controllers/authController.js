@@ -1,95 +1,24 @@
-const prisma = require("../lib/prisma");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const asyncHandler = require("../utils/asyncHandler");
+const { registerUser, loginUser } = require("../services/authService");
 
-const register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+const register = asyncHandler(async (req, res) => {
+  const user = await registerUser(req.body);
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+  res.status(201).json({
+    message: "User created successfully",
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    },
+  });
+});
 
-    if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists",
-      });
-    }
+const login = asyncHandler(async (req, res) => {
+  const result = await loginUser(req.body);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
-    });
-
-    res.status(201).json({
-      message: "User created",
-    });
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      message: "Server Error",
-    });
-  }
-};
-
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      return res.status(400).json({
-        message: "Invalid credentials",
-      });
-    }
-
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
-
-    if (!isMatch) {
-      return res.status(400).json({
-        message: "Invalid credentials",
-      });
-    }
-
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
-
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      message: "Server Error",
-    });
-  }
-};
+  res.status(200).json(result);
+});
 
 module.exports = {
   register,
