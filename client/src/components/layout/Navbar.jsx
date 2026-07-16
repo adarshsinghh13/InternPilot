@@ -1,5 +1,7 @@
 import React from "react";
-import { Menu, Search, User, ChevronDown, Bell } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Menu, Search, User, ChevronDown, Bell, LogOut } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
  
 /**
  * Navbar
@@ -14,6 +16,14 @@ import { Menu, Search, User, ChevronDown, Bell } from "lucide-react";
  *  - onMenuClick: () => void — opens the mobile sidebar drawer
  */
 export default function Navbar({ title = "Dashboard", onMenuClick = () => {} }) {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-4 border-b border-[#222222] bg-[#0A0A0A]/80 px-4 backdrop-blur-md sm:px-6">
       {/* Mobile menu trigger */}
@@ -62,16 +72,23 @@ export default function Navbar({ title = "Dashboard", onMenuClick = () => {} }) 
  
         <div className="mx-1 h-6 w-px bg-[#222222]" aria-hidden="true" />
  
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-2xl border border-transparent px-1.5 py-1.5 transition-colors hover:border-[#222222] hover:bg-[#111111]"
-          aria-label="Account menu"
-        >
+        <div className="flex items-center gap-2 rounded-2xl border border-transparent px-1.5 py-1.5 transition-colors hover:border-[#222222] hover:bg-[#111111]">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#111111] ring-1 ring-[#222222]">
             <User size={16} className="text-gray-400" />
           </span>
-          <ChevronDown size={14} className="hidden text-gray-500 sm:block" />
-        </button>
+          <div className="hidden text-left sm:block">
+            <p className="text-sm text-white">{user?.name || "User"}</p>
+            <p className="text-xs text-gray-500">{user?.email || "Signed in"}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="ml-2 rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+            aria-label="Logout"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
       </div>
     </header>
   );

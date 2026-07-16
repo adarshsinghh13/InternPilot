@@ -8,47 +8,45 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-
-  resumes   Resume[]
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  password     String
+  createdAt    DateTime      @default(now())
+  resumes      Resume[]
   applications Application[]
-
-  createdAt DateTime @default(now())
 }
 
 model Resume {
-  id           String   @id @default(uuid())
-  fileUrl      String
-  publicId     String?
-  filename     String?
-  mimeType     String?
-  size         Int?
-  title        String?
-  version      Int      @default(1)
-  isPrimary    Boolean  @default(false)
-  summary      String?
-  tags         String[] @default([])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  userId       String
+  id        String   @id @default(uuid())
+  fileUrl   String
+  publicId  String?
+  filename  String?
+  mimeType  String?
+  size      Int?
+  title     String?
+  version   Int      @default(1)
+  isPrimary Boolean  @default(false)
+  summary   String?
+  tags      String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
 
   user User @relation(fields: [userId], references: [id])
 }
 
 model Application {
-  id           String   @id @default(uuid())
-  companyName  String
-  jobTitle     String
-  jobUrl       String?
-  status       String   @default("SAVED")
-  notes        String?
-  appliedAt    DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  userId       String
+  id          String    @id @default(uuid())
+  companyName String
+  jobTitle    String
+  jobUrl      String?
+  status      String    @default("SAVED")
+  notes       String?
+  appliedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
 
   user User @relation(fields: [userId], references: [id])
 }
